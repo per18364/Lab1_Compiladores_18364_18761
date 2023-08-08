@@ -44,6 +44,15 @@ class yaplListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by yaplParser#type.
+    def enterType(self, ctx:yaplParser.TypeContext):
+        pass
+
+    # Exit a parse tree produced by yaplParser#type.
+    def exitType(self, ctx:yaplParser.TypeContext):
+        pass
+
+
     # Enter a parse tree produced by yaplParser#methodDeclaration.
     def enterMethodDeclaration(self, ctx:yaplParser.MethodDeclarationContext):
         pass
@@ -284,15 +293,6 @@ class yaplListener(ParseTreeListener):
 
     # Exit a parse tree produced by yaplParser#falseLiteralExpression.
     def exitFalseLiteralExpression(self, ctx:yaplParser.FalseLiteralExpressionContext):
-        pass
-
-
-    # Enter a parse tree produced by yaplParser#type.
-    def enterType(self, ctx:yaplParser.TypeContext):
-        pass
-
-    # Exit a parse tree produced by yaplParser#type.
-    def exitType(self, ctx:yaplParser.TypeContext):
         pass
 
 

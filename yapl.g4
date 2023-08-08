@@ -28,6 +28,9 @@ classBody: (attributeDeclaration | methodDeclaration)*;
 // Attribute Declaration
 attributeDeclaration: type ID SEMI;
 
+// Types
+type: INT | STRING_TYPE | TYPE_ID;
+
 // Method Declaration
 methodDeclaration: type ID LPAREN parameterList? RPAREN block;
 
@@ -107,9 +110,6 @@ NOT: 'not';
 RETURN: 'return';
 INT: 'int';
 STRING_TYPE: 'string';
-
-// Types
-type: INT | STRING_TYPE | TYPE_ID;
 
 // Lexical Specifications
 ID: [a-z][a-zA-Z0-9_]*;

@@ -1,6 +1,7 @@
 from antlr4 import *
 from yaplLexer import yaplLexer
 from yaplParser import yaplParser
+from yaplListener import yaplListener
 from antlr4.tree.Trees import Trees
 from antlr4.error.ErrorListener import ErrorListener
 from graphviz import Digraph
@@ -37,13 +38,47 @@ class CustomErrorListener(ErrorListener):
 
 
 class yaplListener(ParseTreeListener):
-
     def enterExpression(self, ctx: yaplParser.ExpressionContext):
         print("Entrando en expresión:", ctx.getText())
 
     def exitExpression(self, ctx: yaplParser.ExpressionContext):
         print("Saliendo de expresión:", ctx.getText())
 
+class SymbolTable:
+    def __init__(self):
+        self.scopes = [{}]
+
+    def enter_scope(self):
+        self.scopes.append({})
+
+    def exit_scope(self):
+        self.scopes.pop()
+
+    def declare(self, symbol, type):
+        self.scopes[-1][symbol] = type
+
+    def lookup(self, symbol):
+        for scope in reversed(self.scopes):
+            if symbol in scope:
+                return scope[symbol]
+        return None
+    
+
+class MyListener(yaplListener):
+    def __init__(self):
+        self.symbol_table = SymbolTable()
+
+    def enterBlock(self, ctx:yaplParser.BlockContext):
+        self.symbol_table.enter_scope()
+
+    def exitBlock(self, ctx:yaplParser.BlockContext):
+        self.symbol_table.exit_scope()
+
+    def enterAttributeDeclaration(self, ctx:yaplParser.AttributeDeclarationContext):
+        symbol = ctx.ID().getText()
+        type_ctx = ctx.getChild(0)  # Esto devuelve el primer hijo, que debe ser el contexto de 'type'
+        type_text = type_ctx.getText()  # Esto devuelve el texto del tipo
+        self.symbol_table.declare(symbol, type_text)
 
 def main():
     # Lee el código fuente de YAPL desde un archivo o un string
@@ -66,7 +101,6 @@ def main():
     # tree = parser.expression()
     tree = parser.program()
 
-
     # Visualizar el árbol de análisis sintáctico en consola
     print('Arbol de analisis sintactico: ',
           Trees.toStringTree(tree, recog=parser), "\n")
@@ -75,6 +109,11 @@ def main():
     yl = yaplListener()
     walker = ParseTreeWalker()
     walker.walk(yl, tree)
+    
+    #crear tabla de simbolos
+    my_listener = MyListener()
+    walker.walk(my_listener, tree)
+    print("Tabla de Simbolos: \n", my_listener.symbol_table.scopes)
 
     visualize_tree(tree, "arbol_sintactico.pdf")
 
