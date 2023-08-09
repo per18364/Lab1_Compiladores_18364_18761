@@ -68,17 +68,42 @@ class MyListener(yaplListener):
     def __init__(self):
         self.symbol_table = SymbolTable()
 
+    def enterClassDeclaration(self, ctx:yaplParser.ClassDeclarationContext):
+        print("Entrando en ClassDeclaration")  
+        class_name = ctx.TYPE_ID()[0].getText()
+        self.symbol_table.declare(class_name, "class")
+        self.symbol_table.enter_scope()  # Nuevo ámbito para la clase
+
+    def exitClassDeclaration(self, ctx:yaplParser.ClassDeclarationContext):
+        print("Saliendo de ClassDeclaration")
+        # self.symbol_table.exit_scope()  # Salir del ámbito de la clase
+
+    def enterMethodDeclaration(self, ctx:yaplParser.MethodDeclarationContext):
+        print("Entrando en MethodDeclaration")
+        method_name = ctx.ID().getText()
+        method_type = ctx.getChild(0).getText()  # Esto devuelve el texto del tipo
+        self.symbol_table.declare(method_name, "method: " + method_type)
+        self.symbol_table.enter_scope()  # Nuevo ámbito para el método
+
+    def exitMethodDeclaration(self, ctx:yaplParser.MethodDeclarationContext):
+        print("Saliendo de MethodDeclaration")
+        self.symbol_table.exit_scope()  # Salir del ámbito del método
+
     def enterBlock(self, ctx:yaplParser.BlockContext):
-        self.symbol_table.enter_scope()
+        print("Entrando en Block")
+        self.symbol_table.enter_scope()  # Nuevo ámbito para el bloque
 
     def exitBlock(self, ctx:yaplParser.BlockContext):
-        self.symbol_table.exit_scope()
+        print("Saliendo de Block")
+        self.symbol_table.exit_scope()  # Salir del ámbito del bloque
 
     def enterAttributeDeclaration(self, ctx:yaplParser.AttributeDeclarationContext):
+        print("Entrando en AttributeDeclaration")
         symbol = ctx.ID().getText()
         type_ctx = ctx.getChild(0)  # Esto devuelve el primer hijo, que debe ser el contexto de 'type'
         type_text = type_ctx.getText()  # Esto devuelve el texto del tipo
         self.symbol_table.declare(symbol, type_text)
+
 
 def main():
     # Lee el código fuente de YAPL desde un archivo o un string
@@ -106,14 +131,15 @@ def main():
           Trees.toStringTree(tree, recog=parser), "\n")
 
     # Crear el árbol de análisis
-    yl = yaplListener()
-    walker = ParseTreeWalker()
-    walker.walk(yl, tree)
+    # yl = yaplListener()
+    # walker = ParseTreeWalker()
+    # walker.walk(yl, tree)
     
     #crear tabla de simbolos
     my_listener = MyListener()
+    walker = ParseTreeWalker()
     walker.walk(my_listener, tree)
-    print("Tabla de Simbolos: \n", my_listener.symbol_table.scopes)
+    print("\nTabla de Simbolos: \n", my_listener.symbol_table.scopes)
 
     visualize_tree(tree, "arbol_sintactico.pdf")
 

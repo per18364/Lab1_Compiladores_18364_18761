@@ -8,6 +8,7 @@ class Animal inherits Object {
         } else {
             return 1;
         }
+        fi
     }
     
     int getAge() {
